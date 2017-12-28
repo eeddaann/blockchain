@@ -171,7 +171,10 @@ class Blockchain:
 
         guess = f'{last_proof}{proof}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
-        return guess_hash[:4] == "0000"
+        print(guess_hash)
+        #return guess_hash[:4] == "0000"
+        #return guess_hash[:2] == "00"
+        return guess_hash[-2:] == "00" # workaround for js
 
 
 # Instantiate the Node
@@ -200,11 +203,34 @@ def create_transaction():
 
 @app.route('/view_chain', methods=['GET'])
 def view_chain():
-    response = {
-        'chain': blockchain.chain,
-        'length': len(blockchain.chain),
-    }
     return render_template('view_chain.html', length=len(blockchain.chain), chain=blockchain.chain)  # 5
+
+@app.route('/miner', methods=['GET','POST'])
+def miner():
+    if request.method == 'GET':
+        return render_template('miner.html', last_block = blockchain.last_block, last_proof = blockchain.last_block['proof'])
+    if request.method == 'POST':
+       values = request.form['proof']
+       proof = values
+       last_block = blockchain.last_block['proof']
+       if blockchain.valid_proof(blockchain.last_block['proof'],proof):
+          blockchain.new_transaction(sender="0",recipient=node_identifier,amount=1) # pay to the miner
+          previous_hash = blockchain.hash(last_block)
+          block = blockchain.new_block(proof, previous_hash)
+          response = {
+              'message': "New Block Forged",
+              'index': block['index'],
+              'transactions': block['transactions'],
+              'proof': block['proof'],
+              'previous_hash': block['previous_hash'],
+          }
+          return jsonify(response), 200
+       else:
+           response = {
+               'message': "cannot verify this block!",
+           }
+           return jsonify(response), 401
+
 
 @app.route('/mine', methods=['GET'])
 def mine():
@@ -241,7 +267,6 @@ def new_transaction():
 
     # Check that the required fields are in the POST'ed data
     required = ['sender', 'recipient', 'amount']
-    print(values)
     if not all(k in values for k in required):
         return 'Missing values', 400
 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
+    <script>
+    forge.options.usePureJavaScript = true;
+
+    async function proof_of_work(last_proof) {
+        // Simple Proof of Work Algorithm:
+        // - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
+        // - p is the previous proof, and p' is the new proof
+        document.getElementById("last_hash").innerHTML = last_proof;
+        proof = 0;
+        block = 0;
+        while(true) {
+        while (valid_proof(last_proof, proof) == 0)    {
+            proof += 1
+            await sleep(1)
+            if(proof % 10 == 0) {
+                document.getElementById("hash_counter").innerHTML = proof;
+            }
+        }
+        block++;
+        $proof = proof
+        $.ajax({
+            url: '/miner',
+            data: {'proof': proof},
+            type: 'POST',
+            success: function(response) {
+                console.log("yay");
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+        document.getElementById("block_counter").innerHTML = block;
+        return proof;
+        }
+        return proof;
+    }
+    function valid_proof(last_proof, proof) {
+        var guess = last_proof + proof;
+        var md = forge.md.sha256.create();
+        md.update(guess);
+        //console.log(md.digest().toHex().slice(62,64));
+        var guess_hash = md.digest().toHex().slice(62,64); // take last 4 chars since sha256 returns 64bit
+        if(guess_hash == '00'){
+        console.log(md.digest().toHex())
+        return 1
+        }
+        else{
+        return 0
+        }
+    }
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    </script>
+    <title>CimCoin</title>
+</head>
+<body>
+<div class="container">
+<div class="jumbotron text-center">
+  <h1>Cim Coin</h1>
+  <p>Cim lab's cryptocurrency!</p>
+</div>
+    <h2> Mine CimCoins! </h2>
+        <div>
+            <button onclick="proof_of_work({{ last_proof }});">Mine!</button>
+            <br>
+            hashes computed: <p id="hash_counter"></p>
+            blocks computed: <p id="block_counter"></p>
+            last hash: <p id="last_hash"></p>
+        </div>
+    </form>
+</div>
+</body>
+</html>
