@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from uuid import uuid4
 
 import requests
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 
 
 class Blockchain:
@@ -178,11 +178,33 @@ class Blockchain:
 app = Flask(__name__)
 
 # Generate a globally unique address for this node
-node_identifier = str(uuid4()).replace('-', '')
+node_identifier = "CimCoin miner" #str(uuid4()).replace('-', '')
 
 # Instantiate the Blockchain
 blockchain = Blockchain()
 
+@app.route('/')
+def start():
+    return render_template('index.html')
+
+@app.route('/new_transaction',methods=['GET','POST'])
+def create_transaction():
+    if request.method=='GET':
+        return render_template('new_transaction.html')
+    elif request.method=='POST':
+        sender = request.form['sender']
+        recipient = request.form['recipient']
+        amount = request.form['amount']
+        index = blockchain.new_transaction(sender, recipient, amount)
+    return render_template('index.html')
+
+@app.route('/view_chain', methods=['GET'])
+def view_chain():
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain),
+    }
+    return render_template('view_chain.html', length=len(blockchain.chain), chain=blockchain.chain)  # 5
 
 @app.route('/mine', methods=['GET'])
 def mine():
@@ -219,6 +241,7 @@ def new_transaction():
 
     # Check that the required fields are in the POST'ed data
     required = ['sender', 'recipient', 'amount']
+    print(values)
     if not all(k in values for k in required):
         return 'Missing values', 400
 
