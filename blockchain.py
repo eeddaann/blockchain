@@ -3,7 +3,7 @@ import json
 from time import time
 from urllib.parse import urlparse
 from uuid import uuid4
-
+import datetime
 import requests
 from flask import Flask, jsonify, request, render_template
 
@@ -169,12 +169,12 @@ class Blockchain:
         :return: True if correct, False if not.
         """
 
-        guess = f'{last_proof}{proof}'.encode()
-        guess_hash = hashlib.sha256(guess).hexdigest()
+        #guess = f'{last_proof}{proof}'.encode()
+        guess_hash = hashlib.sha256(str(last_proof).encode()+str(proof).encode()).hexdigest()
+        print(str(last_proof).encode()+str(proof).encode())
         print(guess_hash)
         #return guess_hash[:4] == "0000"
-        #return guess_hash[:2] == "00"
-        return guess_hash[-2:] == "00" # workaround for js
+        return guess_hash[-3:] == "000"
 
 
 # Instantiate the Node
@@ -321,6 +321,9 @@ def consensus():
 
     return jsonify(response), 200
 
+@app.template_filter('strftime')
+def _jinja2_filter_datetime(timestamp):
+    return datetime.datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d  %H:%M:%S')
 
 if __name__ == '__main__':
     from argparse import ArgumentParser

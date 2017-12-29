@@ -14,17 +14,18 @@
         // - Find a number p' such that hash(pp') contains leading 4 zeroes, where p is the previous p'
         // - p is the previous proof, and p' is the new proof
         document.getElementById("last_hash").innerHTML = last_proof;
+        last_proof = last_proof
         proof = 0;
         block = 0;
         while(true) {
         while (valid_proof(last_proof, proof) == 0)    {
             proof += 1
-            await sleep(1)
+            //await sleep(1)
             if(proof % 10 == 0) {
                 document.getElementById("hash_counter").innerHTML = proof;
             }
         }
-        block++;
+
         $proof = proof
         $.ajax({
             url: '/miner',
@@ -32,23 +33,27 @@
             type: 'POST',
             success: function(response) {
                 console.log("yay");
+                block++;
+                last_proof = response.proof;
+                proof = 0
+                document.getElementById("last_hash").innerHTML = last_proof;
+                document.getElementById("block_counter").innerHTML = block;
             },
             error: function(error) {
                 console.log(error);
             }
         });
-        document.getElementById("block_counter").innerHTML = block;
         return proof;
         }
         return proof;
     }
     function valid_proof(last_proof, proof) {
-        var guess = last_proof + proof;
+        var guess = last_proof.toString() + proof.toString();
         var md = forge.md.sha256.create();
         md.update(guess);
         //console.log(md.digest().toHex().slice(62,64));
-        var guess_hash = md.digest().toHex().slice(62,64); // take last 4 chars since sha256 returns 64bit
-        if(guess_hash == '00'){
+        var guess_hash = md.digest().toHex().slice(61,64); // take last 4 chars since sha256 returns 64bit
+        if(guess_hash == '000'){
         console.log(md.digest().toHex())
         return 1
         }
