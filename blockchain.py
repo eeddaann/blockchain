@@ -228,6 +228,7 @@ def miner():
        else:
            response = {
                'message': "cannot verify this block!",
+               'proof': blockchain.last_block['proof'],
            }
            return jsonify(response), 401
 

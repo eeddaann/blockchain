@@ -8,6 +8,21 @@
     <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
     <script>
     forge.options.usePureJavaScript = true;
+    async function mine(last_proof) {
+    block = 0
+    cur_proof = last_proof
+    tmp = last_proof
+    while(true) {
+    cur_proof = await proof_of_work(cur_proof);
+    if (cur_proof != tmp) {
+    block++
+    document.getElementById("last_hash").innerHTML = cur_proof;
+    document.getElementById("block_counter").innerHTML = block;
+    tmp = cur_proof
+    }
+    await sleep(100)
+    }
+    }
 
     async function proof_of_work(last_proof) {
         // Simple Proof of Work Algorithm:
@@ -16,35 +31,12 @@
         document.getElementById("last_hash").innerHTML = last_proof;
         last_proof = last_proof
         proof = 0;
-        block = 0;
-        while(true) {
         while (valid_proof(last_proof, proof) == 0)    {
             proof += 1
-            //await sleep(1)
-            if(proof % 10 == 0) {
-                document.getElementById("hash_counter").innerHTML = proof;
-            }
         }
 
         $proof = proof
-        $.ajax({
-            url: '/miner',
-            data: {'proof': proof},
-            type: 'POST',
-            success: function(response) {
-                console.log("yay");
-                block++;
-                last_proof = response.proof;
-                proof = 0
-                document.getElementById("last_hash").innerHTML = last_proof;
-                document.getElementById("block_counter").innerHTML = block;
-            },
-            error: function(error) {
-                console.log(error);
-            }
-        });
-        return proof;
-        }
+        last_proof = validate_proof(proof);
         return proof;
     }
     function valid_proof(last_proof, proof) {
@@ -62,6 +54,20 @@
     }
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    function validate_proof(proof) {
+    $.ajax({
+            url: '/miner',
+            data: {'proof': proof},
+            type: 'POST',
+            success: function(response) {
+                return response.responseJSON["proof"]
+            },
+            error: function(error) {
+                return error.responseJSON["proof"]
+            }
+        });
+
     }
     </script>
     <title>CimCoin</title>
@@ -86,9 +92,8 @@
 </div>
     <h2> Mine CimCoins! </h2>
         <div>
-            <button onclick="proof_of_work({{ last_proof }});">Mine!</button>
+            <button onclick="mine({{ last_proof }});">Mine!</button>
             <br>
-            hashes computed: <p id="hash_counter"></p>
             blocks computed: <p id="block_counter"></p>
             last hash: <p id="last_hash"></p>
         </div>
