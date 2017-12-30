@@ -51,9 +51,8 @@
         var guess = last_proof.toString() + proof.toString();
         var md = forge.md.sha256.create();
         md.update(guess);
-        //console.log(md.digest().toHex().slice(62,64));
-        var guess_hash = md.digest().toHex().slice(61,64); // take last 4 chars since sha256 returns 64bit
-        if(guess_hash == '000'){
+        var guess_hash = md.digest().toHex().slice(0,4); // take last 4 chars since sha256 returns 64bit
+        if(guess_hash == '0000'){
         console.log(md.digest().toHex())
         return 1
         }
@@ -68,6 +67,18 @@
     <title>CimCoin</title>
 </head>
 <body>
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">CimCoin</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a href="/new_transaction">create transaction</a></li>
+      <li class="active"><a href="/miner">miner</a></li>
+      <li><a href="/view_chain">view chain</a></li>
+    </ul>
+  </div>
+</nav>
 <div class="container">
 <div class="jumbotron text-center">
   <h1>Cim Coin</h1>

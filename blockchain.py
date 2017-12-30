@@ -174,7 +174,7 @@ class Blockchain:
         print(str(last_proof).encode()+str(proof).encode())
         print(guess_hash)
         #return guess_hash[:4] == "0000"
-        return guess_hash[-3:] == "000"
+        return guess_hash[:4] == "0"*4
 
 
 # Instantiate the Node
