@@ -130,6 +130,16 @@ class Blockchain:
 
         return self.last_block['index'] + 1
 
+    def get_balance(self,wallet_id):
+        balance = 0
+        for block in self.chain:
+            for transaction in block['transactions']:
+                if transaction['sender'] == wallet_id:
+                    balance -= int(transaction['amount'])
+                if transaction['recipient'] == wallet_id:
+                    balance += int(transaction['amount'])
+        return balance
+
     @property
     def last_block(self):
         return self.chain[-1]
@@ -181,25 +191,49 @@ class Blockchain:
 app = Flask(__name__)
 
 # Generate a globally unique address for this node
-node_identifier = "CimCoin miner" #str(uuid4()).replace('-', '')
+node_identifier = "CimCoin_user" #str(uuid4()).replace('-', '')
 
 # Instantiate the Blockchain
 blockchain = Blockchain()
 
 @app.route('/')
 def start():
-    return render_template('index.html')
+    if 'wallet_id' in request.cookies:
+        return render_template('index.html',balance=blockchain.get_balance(request.cookies['wallet_id']))
+    else:
+        return render_template('index.html', balance=0)
 
 @app.route('/new_transaction',methods=['GET','POST'])
 def create_transaction():
     if request.method=='GET':
-        return render_template('new_transaction.html')
+        user = ""
+        if 'wallet_id' in request.cookies:
+            user = request.cookies['wallet_id']
+        return render_template('new_transaction.html',user=user)
     elif request.method=='POST':
         sender = request.form['sender']
         recipient = request.form['recipient']
         amount = request.form['amount']
-        index = blockchain.new_transaction(sender, recipient, amount)
-    return render_template('index.html')
+        if blockchain.get_balance(sender)>= int(amount):
+            index = blockchain.new_transaction(sender, recipient, amount)
+            print("transaction added")
+        else:
+            return render_template('transaction_rejected.html',amount=amount, balance=blockchain.get_balance(sender) )
+    if 'wallet_id' in request.cookies:
+        return render_template('index.html',balance=blockchain.get_balance(request.cookies['wallet_id']))
+    else:
+        return render_template('index.html', balance=0)
+
+@app.route('/login',methods=['GET','POST'])
+def login():
+    if request.method=='GET':
+        return render_template('login.html')
+    elif request.method=='POST':
+        response = app.make_response(render_template('index.html', balance=0))
+        wallet_id = request.form['wallet_id']
+        response.set_cookie('wallet_id', value=wallet_id)
+        return response
+
 
 @app.route('/view_chain', methods=['GET'])
 def view_chain():
@@ -212,9 +246,14 @@ def miner():
     if request.method == 'POST':
        values = request.form['proof']
        proof = values
+       miner = node_identifier
        last_block = blockchain.last_block['proof']
        if blockchain.valid_proof(blockchain.last_block['proof'],proof):
-          blockchain.new_transaction(sender="0",recipient=node_identifier,amount=1) # pay to the miner
+          if 'wallet_id' in request.cookies:
+              miner = request.cookies['wallet_id']
+              if miner == "":
+                  miner = 'guest'
+          blockchain.new_transaction(sender="cimcoin_network",recipient=miner,amount=1) # pay to the miner
           previous_hash = blockchain.hash(last_block)
           block = blockchain.new_block(proof, previous_hash)
           response = {
