@@ -140,6 +140,22 @@ class Blockchain:
                     balance += int(transaction['amount'])
         return balance
 
+    def get_user_transactions(self,wallet_id):
+        transaction_lst = []
+        for block in self.chain:
+            for transaction in block['transactions']:
+                if transaction['sender'] == wallet_id or transaction['recipient'] == wallet_id:
+                    transaction_lst.append(transaction)
+        return transaction_lst
+
+    def get_user_un_transactions(self, wallet_id):
+        transaction_lst = []
+        for transaction in self.current_transactions:
+            if transaction['sender'] == wallet_id or transaction['recipient'] == wallet_id:
+                transaction_lst.append(transaction)
+        return transaction_lst
+
+
     @property
     def last_block(self):
         return self.chain[-1]
@@ -198,10 +214,7 @@ blockchain = Blockchain()
 
 @app.route('/')
 def start():
-    if 'wallet_id' in request.cookies:
-        return render_template('index.html',balance=blockchain.get_balance(request.cookies['wallet_id']))
-    else:
-        return render_template('index.html', balance=0)
+    return render_template('index.html')
 
 @app.route('/new_transaction',methods=['GET','POST'])
 def create_transaction():
@@ -216,20 +229,27 @@ def create_transaction():
         amount = request.form['amount']
         if blockchain.get_balance(sender)>= int(amount):
             index = blockchain.new_transaction(sender, recipient, amount)
-            print("transaction added")
+            if request.form['mode'] == 'text':
+                response = {
+                    'message': "transaction added, you just paid "+str(amount)+" CimCoins to "+recipient,
+                }
+                return jsonify(response), 200
         else:
+            if request.form['mode'] == 'text':
+                response = {
+                    'message': "transaction failed! you have tried to transfer "+str(amount)+" CimCoins while you have only "+str(blockchain.get_balance(sender))+" CimCoins.",
+                }
+                return jsonify(response), 200
             return render_template('transaction_rejected.html',amount=amount, balance=blockchain.get_balance(sender) )
-    if 'wallet_id' in request.cookies:
-        return render_template('index.html',balance=blockchain.get_balance(request.cookies['wallet_id']))
-    else:
-        return render_template('index.html', balance=0)
+        return render_template('index.html')
+
 
 @app.route('/login',methods=['GET','POST'])
 def login():
     if request.method=='GET':
         return render_template('login.html')
     elif request.method=='POST':
-        response = app.make_response(render_template('index.html', balance=0))
+        response = app.make_response(render_template('index.html'))
         wallet_id = request.form['wallet_id']
         response.set_cookie('wallet_id', value=wallet_id)
         return response
@@ -238,6 +258,17 @@ def login():
 @app.route('/view_chain', methods=['GET'])
 def view_chain():
     return render_template('view_chain.html', length=len(blockchain.chain), chain=blockchain.chain)  # 5
+
+@app.route('/my_transactions', methods=['GET'])
+def my_transactions():
+    if 'wallet_id' in request.cookies:
+        user = request.cookies['wallet_id']
+    else:
+        user = 'guest'
+    return render_template('my_transactions.html', transactions=blockchain.get_user_transactions(user),un_transactions=blockchain.get_user_un_transactions(user),user=user, balance=blockchain.get_balance(user))
+
+
+
 
 @app.route('/miner', methods=['GET','POST'])
 def miner():
@@ -329,7 +360,7 @@ def full_chain():
 @app.route('/nodes/register', methods=['POST'])
 def register_nodes():
     values = request.get_json()
-
+    print(values)
     nodes = values.get('nodes')
     if nodes is None:
         return "Error: Please supply a valid list of nodes", 400

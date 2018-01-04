@@ -18,9 +18,9 @@
       <li><a href="/new_transaction">create transaction</a></li>
       <li><a href="/miner">miner</a></li>
       <li><a href="/view_chain">view chain</a></li>
+        <li><a href="/my_transactions"> my transactions</a></li>
     </ul>
       <ul class="nav navbar-nav navbar-right">
-      <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
       <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
     </ul>
   </div>
@@ -43,10 +43,6 @@
 <a href="/view_chain"><h2>view chain <i class="em em-gear"></i> </h2></a>
     <p> View the recent transactions ordered by blocks</p>
 </div>
-    {% if session['wallet_id'] %}
-    <h2> you have {{ balance }} CimCoins!</h2>
-    {% endif %}
-    <h2> you have {{ balance }} CimCoins!</h2>
 </div>
 </body>
 </html>

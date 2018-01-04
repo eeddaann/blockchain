@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>CimCoin</title>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">CimCoin</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a href="/new_transaction">create transaction</a></li>
+      <li><a href="/miner">miner</a></li>
+      <li class="active"><a href="#">view chain</a></li>
+    </ul>
+  </div>
+</nav>
+<div class="container">
+    <div class="jumbotron text-center">
+        <h1>Cim Coin</h1>
+        <p>Cim lab's cryptocurrency!</p>
+    </div>
+    <h2> my transactions:</h2>
+
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <td>sender</td>
+                        <td>recipient</td>
+                        <td>amount</td>
+                    </tr>
+                    </thead>
+                {% for transaction in transactions %}
+                    {% if transaction.sender == user %}
+                <tr class="danger">
+            {% else %}
+                <tr class="success">
+            {% endif %}
+                    <td>{{ transaction.sender }}</td>
+                    <td>{{ transaction.recipient }}</td>
+                    <td>{{ transaction.amount }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+    <h3>Unconfirmed transactions:</h3>
+                    <table class="table table-striped">
+                {% for transaction in un_transactions %}
+                    {% if transaction.sender == user %}
+                <tr class="danger">
+            {% else %}
+                <tr class="success">
+            {% endif %}
+                    <td>{{ transaction.sender }}</td>
+                    <td>{{ transaction.recipient }}</td>
+                    <td>{{ transaction.amount }}</td>
+                </tr>
+                {% endfor %}
+                </table>
+    <h2>Total: {{ balance }}</h2>
+</div>
+</body>
+</html>
+

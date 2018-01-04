@@ -16,3 +16,4 @@ COPY templates /templates
 EXPOSE 5000
 
 ENTRYPOINT [ "python", "/blockchain.py", "--port", "5000"  ]
+#docker build --no-cache -t blockchain . && docker run --rm -p 80:5000 blockchain
