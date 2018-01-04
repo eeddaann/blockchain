@@ -10,16 +10,16 @@
 </head>
 <body>
 <nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/">CimCoin</a>
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">CimCoin</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li><a href="/new_transaction">create transaction</a></li>
+            <li><a href="/miner">miner</a></li>
+            <li class="active"><a href="#">view chain</a></li>
+        </ul>
     </div>
-    <ul class="nav navbar-nav">
-      <li><a href="/new_transaction">create transaction</a></li>
-      <li><a href="/miner">miner</a></li>
-      <li class="active"><a href="#">view chain</a></li>
-    </ul>
-  </div>
 </nav>
 <div class="container">
     <div class="jumbotron text-center">
@@ -51,13 +51,13 @@
                         <td>amount</td>
                     </tr>
                     </thead>
-                {% for transaction in chain[-1].transactions %}
-                <tr>
-                    <td>{{ transaction.sender }}</td>
-                    <td>{{ transaction.recipient }}</td>
-                    <td>{{ transaction.amount }}</td>
-                </tr>
-                {% endfor %}
+                    {% for transaction in chain[-1].transactions %}
+                    <tr>
+                        <td>{{ transaction.sender }}</td>
+                        <td>{{ transaction.recipient }}</td>
+                        <td>{{ transaction.amount }}</td>
+                    </tr>
+                    {% endfor %}
                 </table>
                 <h2> proof: {{ chain[-1].proof }}</h2>
                 <h2> previous hash: {{ chain[-1].previous_hash }}</h2>
@@ -76,13 +76,13 @@
                         <td>amount</td>
                     </tr>
                     </thead>
-                {% for transaction in block.transactions %}
-                <tr>
-                    <td>{{ transaction.sender }}</td>
-                    <td>{{ transaction.recipient }}</td>
-                    <td>{{ transaction.amount }}</td>
-                </tr>
-                {% endfor %}
+                    {% for transaction in block.transactions %}
+                    <tr>
+                        <td>{{ transaction.sender }}</td>
+                        <td>{{ transaction.recipient }}</td>
+                        <td>{{ transaction.amount }}</td>
+                    </tr>
+                    {% endfor %}
                 </table>
                 <h2> proof: {{ block.proof }}</h2>
                 <h2> previous hash: {{ block.previous_hash }}</h2>
@@ -102,6 +102,7 @@
             <span class="sr-only">Next</span>
         </a>
     </div>
+</div>
 </body>
 </html>
 

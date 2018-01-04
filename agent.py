@@ -1,16 +1,28 @@
 import requests
 
-def transaction(sender, recipient, amount,server="http://0.0.0.0:5000/new_transaction"):
-    data = {'sender': sender, 'recipient': recipient , 'amount': amount, 'mode':'text'}
-    r = requests.post(server, data=data)
-    return r.text
+def buy_drink(user,price):
+    if '@' in user:
+        user,server = user.split('@')
+        if server == '':
+            server = "http://0.0.0.0:5000"
+    else:
+        server = "http://cimcoin.herokuapp.com"
+    return transaction(user,'CimBar',price,server=server)
 
-def register_node(src="http://0.0.0.0:5000",dst="http://0.0.0.0:80, http://cimcoin.herokuapp.com/"):
+
+def transaction(sender, recipient, amount,server="http://0.0.0.0:5000"):
+    data = {'sender': sender, 'recipient': recipient , 'amount': amount, 'mode':'text'}
+    r = requests.post(server+'/new_transaction', data=data)
+    return r.text[16:-4]
+
+buy_drink('edan','0')
+
+def register_node(src="http://0.0.0.0:5000",dst="http://0.0.0.0"):
     data = {"nodes": [dst]}
     r1 = requests.post(src+"/nodes/register", json=data)
     r2 = requests.get(src + "/nodes/resolve")
 
-    return r2.text
+    return r1.text,r2.text
 
-#print(transaction('tal','edan','3')[16:-4])
-print(register_node())
+print(buy_drink('edan','0'))
+#print(register_node('http://cimcoin.herokuapp.com','http://cimcoin.herokuapp.com'))

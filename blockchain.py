@@ -40,8 +40,10 @@ class Blockchain:
 
         while current_index < len(chain):
             block = chain[current_index]
-            print(f'{last_block}')
-            print(f'{block}')
+            print(f
+            '{last_block}')
+            print(f
+            '{block}')
             print("\n-----------\n")
             # Check that the hash of the block is correct
             if block['previous_hash'] != self.hash(last_block):
@@ -72,7 +74,8 @@ class Blockchain:
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
-            response = requests.get(f'http://{node}/chain')
+            response = requests.get(f
+            'http://{node}/chain')
 
             if response.status_code == 200:
                 length = response.json()['length']
@@ -130,7 +133,7 @@ class Blockchain:
 
         return self.last_block['index'] + 1
 
-    def get_balance(self,wallet_id):
+    def get_balance(self, wallet_id):
         balance = 0
         for block in self.chain:
             for transaction in block['transactions']:
@@ -140,7 +143,7 @@ class Blockchain:
                     balance += int(transaction['amount'])
         return balance
 
-    def get_user_transactions(self,wallet_id):
+    def get_user_transactions(self, wallet_id):
         transaction_lst = []
         for block in self.chain:
             for transaction in block['transactions']:
@@ -154,7 +157,6 @@ class Blockchain:
             if transaction['sender'] == wallet_id or transaction['recipient'] == wallet_id:
                 transaction_lst.append(transaction)
         return transaction_lst
-
 
     @property
     def last_block(self):
@@ -195,60 +197,63 @@ class Blockchain:
         :return: True if correct, False if not.
         """
 
-        #guess = f'{last_proof}{proof}'.encode()
-        guess_hash = hashlib.sha256(str(last_proof).encode()+str(proof).encode()).hexdigest()
-        print(str(last_proof).encode()+str(proof).encode())
+        # guess = f'{last_proof}{proof}'.encode()
+        guess_hash = hashlib.sha256(str(last_proof).encode() + str(proof).encode()).hexdigest()
+        print(str(last_proof).encode() + str(proof).encode())
         print(guess_hash)
-        #return guess_hash[:4] == "0000"
-        return guess_hash[:4] == "0"*4
+        # return guess_hash[:4] == "0000"
+        return guess_hash[:4] == "0" * 4
 
 
 # Instantiate the Node
 app = Flask(__name__)
 
 # Generate a globally unique address for this node
-node_identifier = "CimCoin_user" #str(uuid4()).replace('-', '')
+node_identifier = "CimCoin_user"  # str(uuid4()).replace('-', '')
 
 # Instantiate the Blockchain
 blockchain = Blockchain()
+
 
 @app.route('/')
 def start():
     return render_template('index.html')
 
-@app.route('/new_transaction',methods=['GET','POST'])
+
+@app.route('/new_transaction', methods=['GET', 'POST'])
 def create_transaction():
-    if request.method=='GET':
+    if request.method == 'GET':
         user = ""
         if 'wallet_id' in request.cookies:
             user = request.cookies['wallet_id']
-        return render_template('new_transaction.html',user=user)
-    elif request.method=='POST':
+        return render_template('new_transaction.html', user=user)
+    elif request.method == 'POST':
         sender = request.form['sender']
         recipient = request.form['recipient']
         amount = request.form['amount']
-        if blockchain.get_balance(sender)>= int(amount):
+        if blockchain.get_balance(sender) >= int(amount):
             index = blockchain.new_transaction(sender, recipient, amount)
             if request.form['mode'] == 'text':
                 response = {
-                    'message': "transaction added, you just paid "+str(amount)+" CimCoins to "+recipient,
+                    'message': "transaction added, you just paid " + str(amount) + " CimCoins to " + recipient,
                 }
                 return jsonify(response), 200
         else:
             if request.form['mode'] == 'text':
                 response = {
-                    'message': "transaction failed! you have tried to transfer "+str(amount)+" CimCoins while you have only "+str(blockchain.get_balance(sender))+" CimCoins.",
+                    'message': "transaction failed! you have tried to transfer " + str(
+                        amount) + " CimCoins while you have only " + str(blockchain.get_balance(sender)) + " CimCoins.",
                 }
                 return jsonify(response), 200
-            return render_template('transaction_rejected.html',amount=amount, balance=blockchain.get_balance(sender) )
+            return render_template('transaction_rejected.html', amount=amount, balance=blockchain.get_balance(sender))
         return render_template('index.html')
 
 
-@app.route('/login',methods=['GET','POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method=='GET':
+    if request.method == 'GET':
         return render_template('login.html')
-    elif request.method=='POST':
+    elif request.method == 'POST':
         response = app.make_response(render_template('index.html'))
         wallet_id = request.form['wallet_id']
         response.set_cookie('wallet_id', value=wallet_id)
@@ -257,7 +262,8 @@ def login():
 
 @app.route('/view_chain', methods=['GET'])
 def view_chain():
-    return render_template('view_chain.html', length=len(blockchain.chain), chain=blockchain.chain)  # 5
+    return render_template('view_chain.html', length=len(blockchain.chain), chain=blockchain.chain)
+
 
 @app.route('/my_transactions', methods=['GET'])
 def my_transactions():
@@ -265,42 +271,43 @@ def my_transactions():
         user = request.cookies['wallet_id']
     else:
         user = 'guest'
-    return render_template('my_transactions.html', transactions=blockchain.get_user_transactions(user),un_transactions=blockchain.get_user_un_transactions(user),user=user, balance=blockchain.get_balance(user))
+    return render_template('my_transactions.html', transactions=blockchain.get_user_transactions(user),
+                           un_transactions=blockchain.get_user_un_transactions(user), user=user,
+                           balance=blockchain.get_balance(user))
 
 
-
-
-@app.route('/miner', methods=['GET','POST'])
+@app.route('/miner', methods=['GET', 'POST'])
 def miner():
     if request.method == 'GET':
-        return render_template('miner.html', last_block = blockchain.last_block, last_proof = blockchain.last_block['proof'])
+        return render_template('miner.html', last_block=blockchain.last_block,
+                               last_proof=blockchain.last_block['proof'])
     if request.method == 'POST':
-       values = request.form['proof']
-       proof = values
-       miner = node_identifier
-       last_block = blockchain.last_block['proof']
-       if blockchain.valid_proof(blockchain.last_block['proof'],proof):
-          if 'wallet_id' in request.cookies:
-              miner = request.cookies['wallet_id']
-              if miner == "":
-                  miner = 'guest'
-          blockchain.new_transaction(sender="cimcoin_network",recipient=miner,amount=1) # pay to the miner
-          previous_hash = blockchain.hash(last_block)
-          block = blockchain.new_block(proof, previous_hash)
-          response = {
-              'message': "New Block Forged",
-              'index': block['index'],
-              'transactions': block['transactions'],
-              'proof': block['proof'],
-              'previous_hash': block['previous_hash'],
-          }
-          return jsonify(response), 200
-       else:
-           response = {
-               'message': "cannot verify this block!",
-               'proof': blockchain.last_block['proof'],
-           }
-           return jsonify(response), 401
+        values = request.form['proof']
+        proof = values
+        miner = node_identifier
+        last_block = blockchain.last_block['proof']
+        if blockchain.valid_proof(blockchain.last_block['proof'], proof):
+            if 'wallet_id' in request.cookies:
+                miner = request.cookies['wallet_id']
+                if miner == "":
+                    miner = 'guest'
+            blockchain.new_transaction(sender="cimcoin_network", recipient=miner, amount=1)  # pay to the miner
+            previous_hash = blockchain.hash(last_block)
+            block = blockchain.new_block(proof, previous_hash)
+            response = {
+                'message': "New Block Forged",
+                'index': block['index'],
+                'transactions': block['transactions'],
+                'proof': block['proof'],
+                'previous_hash': block['previous_hash'],
+            }
+            return jsonify(response), 200
+        else:
+            response = {
+                'message': "cannot verify this block!",
+                'proof': blockchain.last_block['proof'],
+            }
+            return jsonify(response), 401
 
 
 @app.route('/mine', methods=['GET'])
@@ -392,9 +399,11 @@ def consensus():
 
     return jsonify(response), 200
 
+
 @app.template_filter('strftime')
 def _jinja2_filter_datetime(timestamp):
     return datetime.datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d  %H:%M:%S')
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
