@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/eeddaann/blockchain.svg?branch=master)](https://travis-ci.org/eeddaann/blockchain)
 # CimCoin 
 
 ## learn blockchain by creating one!
