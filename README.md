@@ -11,6 +11,11 @@
 
 - JavaScript crypto miner - An crypto miner for this project's blockchain.
 
+## run with docker:
+run in bash:
+``` sudo bash run.sh ```
+make sure docker installed on your machine
+
 ## demo
  [the project deployed here](https://cimcoin.herokuapp.com)
  
