@@ -6,7 +6,6 @@ from blockchain import Blockchain
 
 
 class BlockchainTestCase(TestCase):
-
     def setUp(self):
         self.blockchain = Blockchain()
 
@@ -22,7 +21,6 @@ class BlockchainTestCase(TestCase):
 
 
 class TestRegisterNodes(BlockchainTestCase):
-
     def test_valid_nodes(self):
         blockchain = Blockchain()
 
@@ -47,7 +45,6 @@ class TestRegisterNodes(BlockchainTestCase):
 
 
 class TestBlocksAndTransactions(BlockchainTestCase):
-
     def test_block_creation(self):
         self.create_block()
 
@@ -92,7 +89,6 @@ class TestBlocksAndTransactions(BlockchainTestCase):
 
 
 class TestHashingAndProofs(BlockchainTestCase):
-
     def test_hash_is_correct(self):
         self.create_block()
 
