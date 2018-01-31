@@ -229,12 +229,14 @@ def create_transaction():
         recipient = request.form['recipient']
         amount = request.form['amount']
         if blockchain.get_balance(sender) >= int(amount):
-            index = blockchain.new_transaction(sender, recipient, amount)
+            blockchain.new_transaction(sender, recipient, amount)
             if request.form['mode'] == 'text':
                 response = {
                     'message': "transaction added, you just paid " + str(amount) + " CimCoins to " + recipient,
                 }
                 return jsonify(response), 200
+            else:
+                return render_template('index.html')
         else:
             if request.form['mode'] == 'text':
                 response = {
@@ -242,8 +244,10 @@ def create_transaction():
                         amount) + " CimCoins while you have only " + str(blockchain.get_balance(sender)) + " CimCoins.",
                 }
                 return jsonify(response), 200
-            return render_template('transaction_rejected.html', amount=amount, balance=blockchain.get_balance(sender))
-        return render_template('index.html')
+            else:
+                return render_template('transaction_rejected.html', amount=amount, balance=blockchain.get_balance(sender))
+    return render_template('index.html')
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
