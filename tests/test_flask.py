@@ -77,4 +77,4 @@ class FlaskBlockchainTests(unittest.TestCase):
         self.assertIn("the chain length is:".encode(),result.data)
 
 if __name__ == '__main__':
-  unittest.main()
+    unittest.main(verbosity=2)
