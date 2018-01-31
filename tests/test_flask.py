@@ -1,8 +1,8 @@
 from blockchain import app
 import unittest
 
-class FlaskBlockchainTests(unittest.TestCase):
 
+class FlaskBlockchainTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         pass
@@ -32,7 +32,7 @@ class FlaskBlockchainTests(unittest.TestCase):
         # on the specified path
         result = self.app.get('/')
         # assert the response data
-        self.assertIn("Transfer some CimCoins to someone else".encode(),result.data)
+        self.assertIn("Transfer some CimCoins to someone else".encode(), result.data)
 
     def test_new_transaction_status_code(self):
         # sends HTTP GET request to the application
@@ -46,7 +46,7 @@ class FlaskBlockchainTests(unittest.TestCase):
         # on the specified path
         result = self.app.get('/new_transaction')
         # assert the response data
-        self.assertIn("sender".encode(),result.data)
+        self.assertIn("sender".encode(), result.data)
 
     def test_login_status_code(self):
         # sends HTTP GET request to the application
@@ -60,7 +60,7 @@ class FlaskBlockchainTests(unittest.TestCase):
         # on the specified path
         result = self.app.get('/login')
         # assert the response data
-        self.assertIn("wallet id:".encode(),result.data)
+        self.assertIn("wallet id:".encode(), result.data)
 
     def test_view_chain_status_code(self):
         # sends HTTP GET request to the application
@@ -74,7 +74,8 @@ class FlaskBlockchainTests(unittest.TestCase):
         # on the specified path
         result = self.app.get('/view_chain')
         # assert the response data
-        self.assertIn("the chain length is:".encode(),result.data)
+        self.assertIn("the chain length is:".encode(), result.data)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

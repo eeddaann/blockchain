@@ -11,7 +11,3 @@ install:
 script:
   - pipenv run python -m unittest -v
 
-deploy:
-  provider: heroku
-  api_key:
-    secure: $HEROKU_KEY
